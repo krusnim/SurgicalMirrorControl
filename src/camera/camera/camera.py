@@ -11,7 +11,7 @@ class CameraNode(Node):
     def __init__(self):
         super().__init__('camera_node')
 
-        self.cam = cv2.VideoCapture(0)
+        self.cam = cv2.VideoCapture(4)
         self.bridge = CvBridge()
         self.image_pub = self.create_publisher(Image, "camera", 10000)
 
