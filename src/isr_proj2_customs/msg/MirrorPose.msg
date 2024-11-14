@@ -1,0 +1,15 @@
+float64 center_x
+float64 upper_right_x
+float64 lower_right_x
+float64 lower_left_x
+float64 upper_left_x
+float64 center_y
+float64 upper_right_y
+float64 lower_right_y
+float64 lower_left_y
+float64 upper_left_y
+float64 center_z
+float64 upper_right_z
+float64 lower_right_z
+float64 lower_left_z
+float64 upper_left_z

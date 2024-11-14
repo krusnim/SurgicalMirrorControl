@@ -19,6 +19,7 @@ find_package(rosidl_default_generators REQUIRED)
 rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/NXTCommand.msg"
   "msg/NXTJointState.msg"
+  "msg/MirrorPose.msg"
  )
 
 ament_package()
