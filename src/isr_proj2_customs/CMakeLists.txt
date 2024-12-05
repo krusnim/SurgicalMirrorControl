@@ -20,6 +20,8 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/NXTCommand.msg"
   "msg/NXTJointState.msg"
   "msg/MirrorPose.msg"
+  "msg/AdeeptJointCommand.msg"
+  "msg/AdeeptJointState.msg"
  )
 
 ament_package()

@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-package_name = 'segmentation'
+package_name = 'mirror'
 
 setup(
     name=package_name,
@@ -16,11 +16,11 @@ setup(
     maintainer='mel',
     maintainer_email='mel.krusniak@gmail.com',
     description='TODO: Package description',
-    license='MIT',
+    license='TODO: License declaration',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'segmenter = segmentation.segmentation:main'
+            'mirror = mirror.mirror:main'
         ],
     },
 )

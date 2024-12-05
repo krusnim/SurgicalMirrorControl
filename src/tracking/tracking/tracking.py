@@ -10,10 +10,10 @@ from cv_bridge import CvBridge, CvBridgeError
 from geometry_msgs.msg import Point, Vector3
 from  isr_proj2_customs.msg import NXTJointState, MirrorPose
 
-class SegmentationNode(Node):
+class TrackingNode(Node):
 
     def __init__(self):
-        super().__init__('mirror_segmentation_node')
+        super().__init__('mirror_tracking_node')
 
         self.bridge = CvBridge()
 
@@ -23,7 +23,7 @@ class SegmentationNode(Node):
         imgpoints = []
         criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
         cal_img = cv2.imread("/home/mel/isr_proj2/src/camera/calibration.jpeg")
-        cal_img = cv2.resize(cal_img, (400, 400))
+        # cal_img = cv2.resize(cal_img, (400, 400))
         gray = cv2.cvtColor(cal_img, cv2.COLOR_BGR2GRAY)
         ret, corners = cv2.findChessboardCorners(gray, (6,8), None)
         if not ret:
@@ -40,7 +40,7 @@ class SegmentationNode(Node):
         self.tool_pos = None
         self.image = None
 
-        self.tool_sub = self.create_subscription(MirrorPose, "eyelash_mirror_pose", self.tool_sub_callback, 10)
+        self.tool_sub = self.create_subscription(MirrorPose, "mirror_pose", self.tool_sub_callback, 10)
         self.camera_sub = self.create_subscription(Image, "camera", self.camera_sub_callback, 10)
         self.center_pub = self.create_publisher(Image, "mirror_center_imgs", 10)
 
@@ -52,20 +52,35 @@ class SegmentationNode(Node):
             self.get_logger().warn("No camera image available")
             return
         
-        pnt = np.array([[[msg.center_x, msg.center_z, msg.center_y]]])
-        # self.get_logger().info(str(pnt))
-        center = cv2.projectPoints(pnt, np.zeros(3), np.zeros(3), self.camera_matrix, np.zeros(5))[0]
-        center = np.reshape(center, (2,))
-        center = (int(center[0]), int((580 - center[1])/2)) # TODO: Why is this correction necessary?
-        # self.get_logger().info(str(center))
+
+        pnt = np.array([msg.center_x, msg.center_z, msg.center_y])
+
+        # was having camera calibration issues so had to
+        #   hand calibrate (do not recommend)
+        wx = 45 / 41 * pnt[2]
+        wy = 33 / 41 * pnt[2]
+
+        center = np.array([
+            pnt[0]/wx * 640 + 320,
+            -pnt[1]/wy * 480 + 240,
+        ], dtype=np.int32)
+        
+        self.get_logger().info(str(pnt))
+        self.get_logger().info(str(center))
+        # center = cv2.projectPoints(pnt, np.eye(3), np.zeros(3), self.camera_matrix, np.zeros(5))[0]
+        # center = np.reshape(center, (2,))
+        # center = (int((center[0])), int((center[1])))
         img = cv2.circle(self.image, center, radius=5, color=(200, 255, 100), thickness=-1)
         img_msg = self.bridge.cv2_to_imgmsg(img, encoding="bgr8")
         self.center_pub.publish(img_msg)
 
 
+def clamp(n, smallest, largest): 
+    return max(smallest, min(n, largest)) 
+
 def main(args=None):
     ros.init(args=args)
-    node = SegmentationNode()
+    node = TrackingNode()
     ros.spin(node)
 
 
